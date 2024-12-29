@@ -1,0 +1,44 @@
+global:
+  scrape_interval: 2s
+  evaluation_interval: 2s
+
+scrape_configs:
+  # API Gateway
+  - job_name: 'gateway-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['gateway-service:8888']
+        labels:
+          application: 'API Gateway'
+
+  # Participant Service
+  - job_name: 'participant-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['participant-service:8082']
+        labels:
+          application: 'Participant Service'
+
+  # Training Service
+  - job_name: 'training-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['training-service:8081']
+        labels:
+          application: 'Training Service'
+
+  # Discovery Service (Eureka)
+  - job_name: 'discovery-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['discovery-service:8761']
+        labels:
+          application: 'Discovery Service'
+
+  # Config Service
+  - job_name: 'config-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['config-service:9999']
+        labels:
+          application: 'Config Service'
