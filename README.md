@@ -39,7 +39,8 @@ The platform is built on a microservices architecture and follows modern develop
 - Ubuntu servers for test and production environments
 
 ## Architecture
-![image](https://github.com/user-attachments/assets/66cf9132-f49e-4dcc-b133-8ed2369ae034)
+![WhatsApp Image 2024-12-29 à 18 03 19_f5265978](https://github.com/user-attachments/assets/9400c917-45c3-4545-bfdb-8221d45fa772)
+
 
 
 ### Global Architecture
