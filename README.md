@@ -1,4 +1,4 @@
-# Learning Application Platform - README
+# AR-FirstAid - README
 
 ## Overview
 This application is a robust learning platform designed to provide training in various fields, including First Aid and Anatomy. The platform includes Android and web clients, enabling participants to enroll in courses, take quizzes, and earn certifications upon successful completion. Advanced features include Augmented Reality (AR) modules for interactive learning and Artificial Intelligence (AI) tools to provide feedback on CPR training using video analysis. 
