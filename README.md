@@ -39,6 +39,8 @@ The platform is built on a microservices architecture and follows modern develop
 - Ubuntu servers for test and production environments
 
 ## Architecture
+![image](https://github.com/user-attachments/assets/66cf9132-f49e-4dcc-b133-8ed2369ae034)
+
 
 ### Global Architecture
 The system consists of three main components:
@@ -54,6 +56,8 @@ The CI/CD pipeline automates the build, testing, and deployment processes:
 4. SonarQube performs code analysis and quality checks.
 5. Docker images are built and pushed to the Docker registry.
 6. The application is deployed to test and production environments.
+   ![image](https://github.com/user-attachments/assets/9249cd3e-d8fa-4123-885a-b3825e4e3238)
+
 
 ## Functionalities
 
@@ -107,6 +111,8 @@ The CI/CD pipeline automates the build, testing, and deployment processes:
 5. **Deployment**:
    - Deploy to test server (192.168.1.26).
    - Deploy to production server (192.168.1.66).
+     ![WhatsApp Image 2024-12-29 à 14 44 37_2998a975](https://github.com/user-attachments/assets/16459a96-bf8e-4fed-a8c8-dfe21f93e6c4)
+
 
 ## Docker Configuration
 
@@ -118,6 +124,150 @@ The platform uses Docker Compose to manage its services:
 - **Observability Stack**: Includes Grafana, Prometheus, Loki, and Tempo.
 
 A sample `docker-compose.yml` file is included for local setup.
+```yaml
+version: "3.8"
+services:
+  mysql-participant:
+    image: docker.io/mysql:8.0
+    container_name: mysql-participant
+    environment:
+      - MYSQL_DATABASE=first_aid_participant_bd
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql_participant_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql-training:
+    image: docker.io/mysql:8.0
+    container_name: mysql-training
+    environment:
+      - MYSQL_DATABASE=first_aid_training_bd
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - mysql_training_data:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  phpmyadmin:
+    image: docker.io/phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin-firstaid
+    ports:
+      - "8089:80"
+    networks:
+      - app-network
+    environment:
+      PMA_HOSTS: mysql-participant,mysql-training
+      PMA_PORTS: 3306,3306
+
+  config-service:
+    image: ${NEXUS_PRIVATE}/config-service:${VERSION:-latest}
+    container_name: config-service
+    ports:
+      - "9999:9999"
+    networks:
+      - app-network
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9999/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  discovery-service:
+    image: ${NEXUS_PRIVATE}/discovery-service:${VERSION:-latest}
+    container_name: discovery-service
+    ports:
+      - "8761:8761"
+    networks:
+      - app-network
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8761/actuator/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  gateway-service:
+    image: ${NEXUS_PRIVATE}/gateway-service:${VERSION:-latest}
+    container_name: gateway-service
+    ports:
+      - "8888:8888"
+    networks:
+      - app-network
+    depends_on:
+      - discovery-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
+      - SPRING_CLOUD_CONFIG_URI=http://config-service:9999
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+
+  participant-service:
+    image: ${NEXUS_PRIVATE}/participant-service:${VERSION:-latest}
+    container_name: participant-service
+    ports:
+      - "8082:8082"
+    networks:
+      - app-network
+    depends_on:
+      mysql-participant:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
+      - SPRING_CLOUD_CONFIG_URI=http://config-service:9999
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+
+  training-service:
+    image: ${NEXUS_PRIVATE}/training-service:${VERSION:-latest}
+    container_name: training-service
+    ports:
+      - "8081:8081"
+    networks:
+      - app-network
+    depends_on:
+      mysql-training:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_CONFIG_IMPORT=optional:configserver:http://config-service:9999
+      - SPRING_CLOUD_CONFIG_URI=http://config-service:9999
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+
+volumes:
+  mysql_participant_data:
+  mysql_training_data:
+
+networks:
+  app-network:
+    driver: bridge
+```
+
 
 ## Getting Started
 
@@ -199,7 +349,16 @@ docker stack deploy -c docker-compose.yml app_stack
 - **Network Segmentation**: Isolates test and production environments.
 
 ## Demo
-A detailed video demonstration is available [here](#).
+A detailed video demonstration is available 
+
+
+https://github.com/user-attachments/assets/51c95a58-9f6d-48e7-bdfe-e6c1aabdff61
+
+
+
+https://github.com/user-attachments/assets/5a34f712-7041-489e-9f2f-f039457cf8cd
+
+
 
 ## Contributors
 - **CHOUAY Walid**
