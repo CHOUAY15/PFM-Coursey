@@ -7,7 +7,7 @@ scrape_configs:
   - job_name: 'gateway-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['gateway-service:8888']
+      - targets: ['host.docker.internal:8888']
         labels:
           application: 'API Gateway'
 
@@ -15,7 +15,7 @@ scrape_configs:
   - job_name: 'participant-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['participant-service:8082']
+      - targets: ['host.docker.internal:8082']
         labels:
           application: 'Participant Service'
 
@@ -23,7 +23,7 @@ scrape_configs:
   - job_name: 'training-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['training-service:8081']
+      - targets: ['host.docker.internal:8081']
         labels:
           application: 'Training Service'
 
@@ -31,7 +31,7 @@ scrape_configs:
   - job_name: 'discovery-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['discovery-service:8761']
+      - targets: ['host.docker.internal:8761']
         labels:
           application: 'Discovery Service'
 
@@ -39,6 +39,6 @@ scrape_configs:
   - job_name: 'config-service'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['config-service:9999']
+      - targets: ['host.docker.internal:9999']
         labels:
           application: 'Config Service'

@@ -1,27 +1,5 @@
 version: "3.8"
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:latest
-    container_name: keycloak
-    ports:
-      - "8080:8080"
-    environment:
-      - KEYCLOAK_ADMIN=admin
-      - KEYCLOAK_ADMIN_PASSWORD=admin
-      - KC_HOSTNAME_PATH=/auth
-      - KC_HOSTNAME_STRICT=false
-      - KC_HOSTNAME_STRICT_HTTPS=false
-      - KC_HTTP_ENABLED=true
-      - KC_HTTP_RELATIVE_PATH=/auth
-      - KC_PROXY=edge
-      - KC_PROXY_ADDRESS_FORWARDING=true
-    command:
-      - start-dev
-      - --http-enabled=true
-      - --hostname=localhost
-    volumes:
-      - ./Keycloak-Docker/data:/opt/keycloak/data
-
   mysql:
     image: mysql:8.0
     container_name: mysql-firstaid
@@ -92,13 +70,11 @@ services:
     ports:
       - "8888:8888"
     depends_on:
-      keycloak:
-        condition: service_started
       discovery-service:
         condition: service_healthy
     environment:
-      - SPRING_PROFILES_ACTIVE=dev
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - KEYCLOAK_AUTH_SERVER_URL=http://localhost:8080
 
   participant-service:
     build:
@@ -184,3 +160,7 @@ services:
 
 volumes:
   mysql_data:
+
+networks:
+  default:
+    driver: bridge

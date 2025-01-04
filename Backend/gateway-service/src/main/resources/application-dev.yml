@@ -27,10 +27,28 @@ eureka:
       defaultZone: http://discovery-service:8761/eureka
 
 management:
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+  observations:
+    key-values:
+      application: gateway-service
+  tracing:
+    sampling:
+      probability: 1.0
   endpoints:
     web:
       exposure:
         include: "*"
+  endpoint:
+    prometheus:
+      enabled: true
+    health:
+      show-details: always
+
 
 logging:
   level:
@@ -39,3 +57,8 @@ logging:
     reactor.netty.http.client: DEBUG
     org.springframework.security: DEBUG
     org.springframework.web: DEBUG
+    org.springframework.web.reactive: DEBUG
+
+loki:
+  url: http://localhost:3100/loki/api/v1/push
+
